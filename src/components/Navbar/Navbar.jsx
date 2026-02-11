@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "./navbar.module.css";
-import logo from "../../assets/logoCT.png";
+import logo from "/logoCT.png";
 const Navbar = (props) => {
   const { isLogged, setIsLogged, role, userEmail, handleCreateClick } = props;
   function handelLogout() {

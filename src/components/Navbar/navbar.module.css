@@ -1,6 +1,6 @@
 @font-face {
     font-family: navitems;
-    src: url(../../assets/fonts/Cinzel-SemiBold.ttf);
+    src: url(/fonts/Cinzel-SemiBold.ttf);
 }
 
 .container {
