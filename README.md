@@ -1,18 +1,220 @@
-# React + Vite
+#  Chess Tournament Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Frontend client for the Chess Tournament platform  
+> Provides UI for authentication, tournaments, rounds, matches, and winner tracking.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+#  Overview
 
-## React Compiler
+This application is the user interface for managing chess tournaments.  
+It connects to the backend API and allows organizers and players to interact with tournaments in real time.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Features include:
 
-Note: This will impact Vite dev & build performances.
+- User login & authentication
+- Tournament creation and listing
+- Player management
+- Round generation
+- Match viewing
+- Winner tracking
+- Next-round progression
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+#  Tech Stack
+
+- React
+- Vite
+- React Router
+- Axios / Fetch API
+- CSS / Tailwind (update if needed)
+- Vercel deployment
+
+---
+
+#  Getting Started
+
+## Install dependencies
+
+```bash
+npm install
+```
+
+## Run development server
+
+```bash
+npm run dev
+```
+
+## Build for production
+
+```bash
+npm run build
+```
+
+## Preview production build
+
+```bash
+npm run preview
+```
+
+---
+
+#  Environment Variables
+
+Create a `.env` file in the root:
+
+```env
+VITE_API_BASE_URL=https://your-backend-domain.com
+```
+
+Example usage in code:
+
+```js
+const API = import.meta.env.VITE_API_BASE_URL;
+
+fetch(`${API}/api/users/login`, {
+  method: "POST",
+  body: JSON.stringify(data)
+});
+```
+
+---
+
+#  Project Structure
+
+```bash
+src/
+│
+├── api/                 # API request helpers
+├── components/          # Reusable UI components
+├── pages/               # Route-level pages
+├── routes/              # Router configuration
+├── hooks/               # Custom hooks
+├── styles/              # Global styles
+├── utils/               # Helper functions
+│
+├── App.jsx
+├── main.jsx
+```
+
+---
+
+# Authentication Flow
+
+```text
+Login Form
+   ↓
+POST /api/users/login
+   ↓
+Receive JWT / cookie
+   ↓
+Store auth state
+   ↓
+Protected routes unlocked
+```
+
+---
+
+# Tournament Flow (Frontend View)
+
+```text
+Create Tournament
+    ↓
+Add Players
+    ↓
+Generate Round 1
+    ↓
+View Matches
+    ↓
+Submit Results
+    ↓
+Next Round Button
+    ↓
+Repeat until Winner
+```
+
+---
+
+#  Next Round Handling (Frontend Logic)
+
+Frontend should call:
+
+```bash
+POST /api/rounds/next
+```
+
+Possible responses:
+
+## Tournament completed
+
+```json
+{
+  "status": "COMPLETED",
+  "winner": { "playerId": "..." }
+}
+```
+
+→ Show Winner Screen
+
+## Next round created
+
+```json
+{
+  "status": "ADVANCED",
+  "round": { "id": "...", "roundNumber": 2 },
+  "matches": []
+}
+```
+
+→ Render matches UI
+
+---
+
+#  Debug Tips
+
+Check API base URL:
+
+```js
+console.log(import.meta.env.VITE_API_BASE_URL);
+```
+
+Check final request URL:
+
+```js
+console.log(`${API}/api/users/login`);
+```
+
+Never concatenate two full domains together.
+
+---
+
+# Deployment
+
+This frontend is optimized for:
+
+- Vercel hosting
+- Static build output
+- Environment-based API URLs
+
+Deploy steps:
+
+```bash
+npm run build
+```
+
+Upload `dist/` to hosting provider.
+
+---
+
+#  Developer Notes
+
+- Keep API base URL configurable
+- Do not hardcode backend domains
+- Handle `"COMPLETED"` status separately in UI
+- Always check for empty matches array
+- Protect organizer-only routes
+
+---
+
