@@ -3,19 +3,34 @@ import styles from "./signup.module.css"; // same CSS file name pattern
 import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
+  const serverUrl = import.meta.env.VITE_SERVER_URL;
   const navigate = useNavigate();
   const [formdata, setFormdata] = React.useState({
     name: "",
     email: "",
-    password: "",
+    password_hash: "",
     role: "player",
   });
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    // Handle form submission logic here (Supabase signup + role assignment)
-    console.log("Signup data:", formdata);
-    // After success: navigate("/login") or wherever
+    console.log("Submitting form with data:", formdata);
+
+    const data = await fetch(`${serverUrl}/api/users/register`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formdata),
+    });
+
+    if (data.ok) {
+      navigate("/");
+    } else {
+      const errorData = await data.json();
+      alert(errorData.message || "Failed to register");
+    }
   }
 
   function handleChange(e) {
@@ -65,8 +80,8 @@ const Signup = () => {
               type="password"
               placeholder="Enter your password"
               className={styles.inputField}
-              name="password"
-              value={formdata.password}
+              name="password_hash"
+              value={formdata.password_hash}
               onChange={handleChange}
             />
           </div>

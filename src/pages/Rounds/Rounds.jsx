@@ -1,12 +1,11 @@
 // Rounds.jsx
 import React from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import styles from "./rounds.module.css";
 
 const Rounds = () => {
   const { tournamentId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const [currentRound, setCurrentRound] = React.useState(null);
   const [matches, setMatches] = React.useState([]);
   const [matchPlayers, setMatchPlayers] = React.useState({});
@@ -14,7 +13,6 @@ const Rounds = () => {
   const serverUrl = import.meta.env.VITE_SERVER_URL;
 
   const fetchPlayerDetails = async (playerId) => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL;
     try {
       const res = await fetch(`${serverUrl}/api/users/${playerId}`, {
         method: "GET",
@@ -34,7 +32,6 @@ const Rounds = () => {
     setCurrentRound(roundData);
     setMatches(matchesData);
 
-    // Fetch player details for all matches
     const playerIds = new Set();
     matchesData.forEach((match) => {
       if (match.white_player_id) playerIds.add(match.white_player_id);
@@ -57,8 +54,7 @@ const Rounds = () => {
     setLoading(false);
   };
 
-  const createRound = async (roundNumber) => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL;
+  const createOrFetchRound = async (roundNumber = 1) => {
     setLoading(true);
     try {
       const res = await fetch(
@@ -66,25 +62,24 @@ const Rounds = () => {
         {
           method: "POST",
           credentials: "include",
-        },
+        }
       );
       if (res.ok) {
         const data = await res.json();
         await loadRoundData(data.round, data.matches);
       } else {
         const errorData = await res.json();
-        alert(errorData.message || "Failed to create round");
+        alert(errorData.message || "Failed to load round");
         setLoading(false);
       }
     } catch (error) {
-      console.error("Error creating round:", error);
-      alert("Error creating round");
+      console.error("Error loading round:", error);
+      alert("Error loading round");
       setLoading(false);
     }
   };
 
   const declareWinner = async (matchId, winnerId, result) => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL;
     try {
       const res = await fetch(`${serverUrl}/api/rounds/${matchId}/winner`, {
         method: "PUT",
@@ -98,10 +93,9 @@ const Rounds = () => {
         }),
       });
       if (res.ok) {
-        alert(`Winner declared successfully Winner is ${result}`);
-        // Refresh current round data
+        alert(`Winner declared successfully!`);
         if (currentRound) {
-          createRound(currentRound.round_number);
+          createOrFetchRound(currentRound.round_number);
         }
       } else {
         const errorData = await res.json();
@@ -113,29 +107,35 @@ const Rounds = () => {
     }
   };
 
-  const handleStartNextRound = async (tournamentId, roundId) => {
-    console.log(roundId, currentRound);
+  const handleStartNextRound = async () => {
+    if (!currentRound) return;
+    
     try {
       const res = await fetch(
-        `${serverUrl}/api/rounds/${tournamentId}/rounds/${roundId}/next`,
+        `${serverUrl}/api/rounds/${tournamentId}/rounds/${currentRound.id}/next`,
         {
           method: "POST",
           credentials: "include",
-        },
+        }
       );
       if (res.ok) {
         const data = await res.json();
-        if (data.status == "COMPLETED") {
+        if (data.status === "COMPLETED") {
           const winner = await fetchPlayerDetails(data.winner_player_id);
-          alert(`Tournament completed! Winner is ${winner.name}`);
+          alert(`Tournament completed! Winner is ${winner?.name || 'Unknown'}`);
+          navigate(`/tournaments/${tournamentId}`);
+        } else {
+          alert("Next round created successfully!");
+          createOrFetchRound(currentRound.round_number + 1);
         }
-
-        await loadRoundData(data.round, data.matches);
       } else {
         const errorData = await res.json();
         alert(errorData.message || "Failed to start next round");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error("Error starting next round:", error);
+      alert("Error starting next round");
+    }
   };
 
   React.useEffect(() => {
@@ -146,20 +146,29 @@ const Rounds = () => {
       return;
     }
 
-    // Check if we have round data from navigation state
-    if (location.state?.roundData && location.state?.matchesData) {
-      loadRoundData(location.state.roundData, location.state.matchesData);
-    } else {
-      // If no state data, redirect back to tournament details
-      alert("Please start round 1 from tournament details page");
-      navigate(`/tournaments/${tournamentId}`);
+    if (tournamentId) {
+      createOrFetchRound(1);
     }
-  }, [tournamentId, location.state]);
+  }, [tournamentId]);
 
   if (loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>Loading round data...</div>
+      </div>
+    );
+  }
+
+  if (!currentRound) {
+    return (
+      <div className={styles.container}>
+        <div className={styles.error}>No active round found</div>
+        <button 
+          className={styles.btnSecondary} 
+          onClick={() => navigate(`/tournaments/${tournamentId}`)}
+        >
+          Back to Tournament
+        </button>
       </div>
     );
   }
@@ -194,25 +203,18 @@ const Rounds = () => {
                 return (
                   <div key={match.id} className={styles.matchCard}>
                     <div className={styles.matchHeader}>
-                      <span className={styles.matchNumber}>
-                        Match #{index + 1}
-                      </span>
-                      <span
-                        className={`${styles.resultBadge} ${styles["result-" + match.result]}`}
-                      >
+                      <span className={styles.matchNumber}>Match #{index + 1}</span>
+                      <span className={`${styles.resultBadge} ${styles["result-" + match.result]}`}>
                         {match.result.toUpperCase()}
                       </span>
                     </div>
 
                     <div className={styles.matchPlayers}>
-                      {/* White Player */}
                       <div className={styles.playerSection}>
                         <div className={styles.playerColor}>⚪ White</div>
                         {whitePlayer ? (
                           <>
-                            <div className={styles.playerName}>
-                              {whitePlayer.name}
-                            </div>
+                            <div className={styles.playerName}>{whitePlayer.name}</div>
                             <div className={styles.playerRating}>
                               Rating: <span>{whitePlayer.rating || "N/A"}</span>
                             </div>
@@ -220,21 +222,14 @@ const Rounds = () => {
                               <button
                                 className={styles.btnWinner}
                                 onClick={() =>
-                                  declareWinner(
-                                    match.id,
-                                    match.white_player_id,
-                                    "white_win",
-                                  )
+                                  declareWinner(match.id, match.white_player_id, "white_win")
                                 }
                               >
                                 Declare Winner
                               </button>
                             )}
-                            {match.winner_player_id ===
-                              match.white_player_id && (
-                              <div className={styles.winnerLabel}>
-                                🏆 Winner
-                              </div>
+                            {match.winner_player_id === match.white_player_id && (
+                              <div className={styles.winnerLabel}>🏆 Winner</div>
                             )}
                           </>
                         ) : (
@@ -244,14 +239,11 @@ const Rounds = () => {
 
                       <div className={styles.vsDivider}>VS</div>
 
-                      {/* Black Player */}
                       <div className={styles.playerSection}>
                         <div className={styles.playerColor}>⚫ Black</div>
                         {blackPlayer ? (
                           <>
-                            <div className={styles.playerName}>
-                              {blackPlayer.name}
-                            </div>
+                            <div className={styles.playerName}>{blackPlayer.name}</div>
                             <div className={styles.playerRating}>
                               Rating: <span>{blackPlayer.rating || "N/A"}</span>
                             </div>
@@ -259,21 +251,14 @@ const Rounds = () => {
                               <button
                                 className={styles.btnWinner}
                                 onClick={() =>
-                                  declareWinner(
-                                    match.id,
-                                    match.black_player_id,
-                                    "black_win",
-                                  )
+                                  declareWinner(match.id, match.black_player_id, "black_win")
                                 }
                               >
                                 Declare Winner
                               </button>
                             )}
-                            {match.winner_player_id ===
-                              match.black_player_id && (
-                              <div className={styles.winnerLabel}>
-                                🏆 Winner
-                              </div>
+                            {match.winner_player_id === match.black_player_id && (
+                              <div className={styles.winnerLabel}>🏆 Winner</div>
                             )}
                           </>
                         ) : (
@@ -297,11 +282,8 @@ const Rounds = () => {
         </section>
 
         <section className={styles.section}>
-          <button
-            className={styles.btnPrimary}
-            onClick={() => handleStartNextRound(tournamentId, currentRound.id)}
-          >
-            NEXT Round {currentRound ? currentRound.round_number + 1 : 2}
+          <button className={styles.btnPrimary} onClick={handleStartNextRound}>
+            Start Round {currentRound ? currentRound.round_number + 1 : 2}
           </button>
         </section>
       </div>

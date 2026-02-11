@@ -9,7 +9,7 @@ const Navbar = (props) => {
   }
   return (
     <div className={styles.container}>
-      <div className={styles.logo}>
+      <div className={styles.logo} onClick={() => (window.location.href = "/")}>
         <img src={logo} alt="logo" />
       </div>
       {isLogged ? (

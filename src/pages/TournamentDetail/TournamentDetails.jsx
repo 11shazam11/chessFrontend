@@ -5,7 +5,6 @@ import styles from './tournamentdetails.module.css'
 
 const TournamentDetails = () => {
   const { tournamentId } = useParams();
-  console.log("Tournament ID from URL:", tournamentId);
   const navigate = useNavigate();
   const [tournament, setTournament] = React.useState(null);
   const [players, setPlayers] = React.useState([]);
@@ -82,34 +81,11 @@ const TournamentDetails = () => {
   };
 
   const handleStartRound1 = async () => {
-    const serverUrl = import.meta.env.VITE_SERVER_URL;
-    try {
-      // Create round 1
-      const res = await fetch(
-        `${serverUrl}/api/rounds/${tournamentId}/rounds/1`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-      
-      if (res.ok) {
-        const data = await res.json();
-        // Navigate to rounds page with the created round data
-        navigate(`/tournaments/${tournamentId}/rounds`, {
-          state: {
-            roundData: data.round,
-            matchesData: data.matches
-          }
-        });
-      } else {
-        const errorData = await res.json();
-        alert(errorData.message || "Failed to start round 1");
-      }
-    } catch (error) {
-      console.error("Error starting round 1:", error);
-      alert("Error starting round 1");
-    }
+    navigate(`/tournaments/${tournamentId}/rounds`);
+  };
+
+  const handleViewMatches = () => {
+    navigate(`/tournaments/${tournamentId}/rounds`);
   };
 
   React.useEffect(() => {
@@ -156,7 +132,6 @@ const TournamentDetails = () => {
       </div>
 
       <div className={styles.content}>
-        {/* Tournament Info Section */}
         <section className={styles.section}>
           <h3 className={styles.sectionTitle}>Tournament Information</h3>
           <div className={styles.infoCard}>
@@ -220,7 +195,6 @@ const TournamentDetails = () => {
           </div>
         </section>
 
-        {/* Players Section */}
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
             <h3 className={styles.sectionTitle}>Registered Players</h3>
@@ -250,7 +224,6 @@ const TournamentDetails = () => {
           )}
         </section>
 
-        {/* Organizer Actions */}
         {role === 'organizer' && (
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>Organizer Actions</h3>
@@ -262,13 +235,24 @@ const TournamentDetails = () => {
               >
                 Close Registration
               </button>
-              <button 
-                className={styles.btnPrimary}
-                onClick={handleStartRound1}
-                disabled={tournament.status === 'ongoing' || tournament.status === 'completed'}
-              >
-                Start Round 1
-              </button>
+              
+              {tournament.status !== 'ongoing' && tournament.status !== 'completed' && (
+                <button 
+                  className={styles.btnPrimary}
+                  onClick={handleStartRound1}
+                >
+                  Start Tournament
+                </button>
+              )}
+              
+              {(tournament.status === 'ongoing' || tournament.status === 'completed') && (
+                <button 
+                  className={styles.btnPrimary}
+                  onClick={handleViewMatches}
+                >
+                  View Matches
+                </button>
+              )}
             </div>
           </section>
         )}
