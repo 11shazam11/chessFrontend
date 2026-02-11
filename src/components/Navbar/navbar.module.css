@@ -1,0 +1,177 @@
+@font-face {
+    font-family: navitems;
+    src: url(../../assets/fonts/Cinzel-SemiBold.ttf);
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    right: 0;
+    background: transparent;
+    backdrop-filter: blur(10px);
+    box-shadow: 4px 4px 10px rgba(94, 92, 92, 0.5);
+    z-index: 100;
+}
+
+.logo {
+    width: auto;
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    margin: 0;
+    padding-top: 4vw;
+    height: 10vw;
+    width: auto;
+    display: block;
+    object-fit: contain;
+}
+
+.menuItems {
+    display: flex;
+    width: 60%;
+    padding-top: 4vw;
+    font-family: navitems;
+    justify-content: space-between;
+    align-items: center;
+    color: #FFD700;
+    padding-right: 2vw;
+    gap: 20px;
+}
+
+.menuItems h3 {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    font-weight: 600;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.menuItems h3::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #FFD700;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px #FFD700;
+}
+
+.menuItems h3:hover {
+    color: #FFD700;
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.8),
+                 0 0 25px rgba(255, 215, 0, 0.6),
+                 0 0 35px rgba(255, 215, 0, 0.4);
+    transform: translateY(-2px);
+}
+
+.menuItems h3:hover::after {
+    width: 100%;
+}
+
+.menuItems h3:active {
+    transform: translateY(0);
+}
+
+/* Select Dropdown Styling */
+.menuItems select {
+    font-family: navitems;
+    font-size: 16px;
+    font-weight: 600;
+    background: rgba(27, 31, 43, 0.8);
+    color: #FFD700;
+    padding: 10px 16px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    letter-spacing: 0.5px;
+    min-width: 180px;
+}
+
+.menuItems select:hover {
+    background: rgba(27, 31, 43, 0.95);
+    border-color: #FFD700;
+    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+.menuItems select:focus {
+    border-color: #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+/* Dropdown options */
+.menuItems select option {
+    background: #1B1F2B;
+    color: #F8F8F2;
+    padding: 10px;
+    font-family: navitems;
+    font-weight: 500;
+}
+
+.menuItems select option:hover {
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+}
+
+/* Optional: Add shine animation */
+@keyframes shine {
+    0% {
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 215, 0, 1),
+                     0 0 30px rgba(255, 215, 0, 0.8),
+                     0 0 40px rgba(255, 215, 0, 0.6);
+    }
+    100% {
+        text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .menuItems {
+        width: 70%;
+        gap: 15px;
+    }
+    
+    .menuItems h3 {
+        font-size: 14px;
+    }
+    
+    .menuItems select {
+        min-width: 150px;
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .menuItems {
+        width: 80%;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .menuItems h3 {
+        font-size: 12px;
+    }
+    
+    .menuItems select {
+        min-width: 120px;
+        font-size: 12px;
+    }
+}

@@ -1,0 +1,352 @@
+.container {
+    min-height: 100vh;
+    width: 100%;
+    background: transparent;
+    padding: 140px 40px 60px 40px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.header {
+    max-width: 1200px;
+    margin: 0 auto 40px auto;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.backBtn {
+    background: transparent;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    color: #FFD700;
+    font-size: 16px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.backBtn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #FFD700;
+}
+
+.header h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #FFD700;
+    margin: 0;
+    text-shadow: 0 2px 12px rgba(255, 215, 0, 0.4);
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sectionTitle {
+    font-size: 22px;
+    font-weight: 600;
+    color: #FFD700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.playerCount {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2ECC71;
+    background: rgba(46, 204, 113, 0.1);
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+}
+
+.infoCard {
+    background: rgba(43, 43, 43, 0.7);
+    border-radius: 12px;
+    padding: 32px;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.infoRow {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.infoItem {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.infoLabel {
+    font-size: 13px;
+    color: rgba(248, 248, 242, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.infoValue {
+    font-size: 17px;
+    color: #F8F8F2;
+    font-weight: 500;
+}
+
+.infoText {
+    font-size: 16px;
+    color: rgba(248, 248, 242, 0.85);
+    line-height: 1.6;
+}
+
+.badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.badge-draft {
+    background: rgba(248, 248, 242, 0.2);
+    color: #F8F8F2;
+}
+
+.badge-registration_open {
+    background: #2ECC71;
+    color: #1B1F2B;
+}
+
+.badge-ongoing {
+    background: #FFD700;
+    color: #1B1F2B;
+}
+
+.badge-completed {
+    background: rgba(46, 204, 113, 0.3);
+    color: #2ECC71;
+}
+
+.badge-cancelled {
+    background: #C0392B;
+    color: #F8F8F2;
+}
+
+.playersGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.playerCard {
+    background: rgba(43, 43, 43, 0.7);
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(255, 215, 0, 0.15);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.playerCard:hover {
+    border-color: rgba(255, 215, 0, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.playerRank {
+    font-size: 24px;
+    font-weight: 700;
+    color: #FFD700;
+    min-width: 50px;
+    text-align: center;
+    text-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.playerInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.playerName {
+    font-size: 18px;
+    font-weight: 600;
+    color: #F8F8F2;
+}
+
+.playerRating {
+    font-size: 15px;
+    color: rgba(248, 248, 242, 0.6);
+}
+
+.playerRating span {
+    color: #2ECC71;
+    font-weight: 600;
+}
+
+.noPlayers {
+    text-align: center;
+    padding: 60px 40px;
+    background: rgba(43, 43, 43, 0.4);
+    border-radius: 12px;
+    border: 1px dashed rgba(255, 215, 0, 0.2);
+}
+
+.noPlayers p {
+    color: rgba(248, 248, 242, 0.5);
+    font-size: 16px;
+    margin: 0;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.btnPrimary {
+    font-size: 16px;
+    font-weight: 700;
+    background: #FFD700;
+    color: #1B1F2B;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+}
+
+.btnPrimary:hover:not(:disabled) {
+    background: #1B1F2B;
+    color: #FFD700;
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+    transform: translateY(-2px);
+}
+
+.btnPrimary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btnSecondary {
+    font-size: 16px;
+    font-weight: 600;
+    background: transparent;
+    color: #FFD700;
+    padding: 16px 40px;
+    border: 2px solid #FFD700;
+    border-radius: 8px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btnSecondary:hover:not(:disabled) {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: #FFD700;
+}
+
+.btnSecondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.loading,
+.error {
+    text-align: center;
+    padding: 100px 40px;
+    color: #FFD700;
+    font-size: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 120px 30px 40px 30px;
+    }
+
+    .header h1 {
+        font-size: 28px;
+    }
+
+    .infoGrid {
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 100px 20px 40px 20px;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .header h1 {
+        font-size: 24px;
+    }
+
+    .infoCard {
+        padding: 24px 20px;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .playersGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .actionButtons {
+        flex-direction: column;
+    }
+
+    .btnPrimary,
+    .btnSecondary {
+        width: 100%;
+    }
+}
