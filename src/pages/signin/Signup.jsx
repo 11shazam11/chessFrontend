@@ -94,9 +94,9 @@ const Signup = () => {
               value={formdata.role}
               onChange={handleChange}
             >
-              <option value="player">Player</option>
-              <option value="organizer">Organizer</option>
-              <option value="admin">Admin</option>
+              <option value="player" className={styles.option}>Player</option>
+              <option value="organizer" className={styles.option}>Organizer</option>
+              <option value="admin" className={styles.option}>Admin</option>
             </select>
           </div>
 

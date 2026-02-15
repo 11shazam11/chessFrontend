@@ -65,7 +65,7 @@
 .inputField {
   font-size: 16px;
   padding: 14px 18px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(5, 5, 5, 0.94);
   border: 1px solid rgba(255, 215, 0, 0.2);
   border-radius: 8px;
   color: #f8f8f2;
@@ -74,7 +74,9 @@
   transition: all 0.3s ease;
   box-sizing: border-box;
 }
-
+.option{
+  background-color: #1b1f2b;
+}
 .inputField::placeholder {
   color: rgba(248, 248, 242, 0.5);
 }

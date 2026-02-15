@@ -1,7 +1,7 @@
 // TournamentDetails.jsx
-import React from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import styles from './tournamentdetails.module.css'
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import styles from "./tournamentdetails.module.css";
 
 const TournamentDetails = () => {
   const { tournamentId } = useParams();
@@ -9,7 +9,7 @@ const TournamentDetails = () => {
   const [tournament, setTournament] = React.useState(null);
   const [players, setPlayers] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [role, setRole] = React.useState('');
+  const [role, setRole] = React.useState("");
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -17,8 +17,8 @@ const TournamentDetails = () => {
       month: "long",
       day: "numeric",
       year: "numeric",
-      hour: '2-digit',
-      minute: '2-digit'
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -43,10 +43,13 @@ const TournamentDetails = () => {
   const fetchPlayers = async () => {
     const serverUrl = import.meta.env.VITE_SERVER_URL;
     try {
-      const res = await fetch(`${serverUrl}/api/tournaments/${tournamentId}/participants`, {
-        method: "GET",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${serverUrl}/api/tournaments/${tournamentId}/participants`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+      );
       if (res.ok) {
         const data = await res.json();
         setPlayers(data.players);
@@ -63,10 +66,13 @@ const TournamentDetails = () => {
   const handleCloseRegistration = async () => {
     const serverUrl = import.meta.env.VITE_SERVER_URL;
     try {
-      const res = await fetch(`${serverUrl}/api/tournaments/${tournamentId}/close-registration`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${serverUrl}/api/tournaments/${tournamentId}/close-registration`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
       if (res.ok) {
         alert("Registration closed successfully");
         fetchTournamentDetails();
@@ -81,11 +87,11 @@ const TournamentDetails = () => {
   };
 
   const handleStartRound1 = async () => {
-    navigate(`/tournaments/${tournamentId}/rounds`);
+    navigate(`/tournaments/${tournamentId}/rounds/first`);
   };
 
   const handleViewMatches = () => {
-    navigate(`/tournaments/${tournamentId}/rounds`);
+    navigate(`/tournaments/${tournamentId}/rounds/next?case=viewMatches`);
   };
 
   React.useEffect(() => {
@@ -139,12 +145,14 @@ const TournamentDetails = () => {
               <span className={styles.infoLabel}>Description:</span>
               <span className={styles.infoText}>{tournament.description}</span>
             </div>
-            
+
             <div className={styles.infoGrid}>
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Status</span>
-                <span className={`${styles.badge} ${styles['badge-' + tournament.status]}`}>
-                  {tournament.status.replace('_', ' ').toUpperCase()}
+                <span
+                  className={`${styles.badge} ${styles["badge-" + tournament.status]}`}
+                >
+                  {tournament.status.replace("_", " ").toUpperCase()}
                 </span>
               </div>
 
@@ -156,40 +164,52 @@ const TournamentDetails = () => {
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Type</span>
                 <span className={styles.infoValue}>
-                  {tournament.is_online ? 'Online' : 'Offline'}
+                  {tournament.is_online ? "Online" : "Offline"}
                 </span>
               </div>
 
               {!tournament.is_online && tournament.location && (
                 <div className={styles.infoItem}>
                   <span className={styles.infoLabel}>Location</span>
-                  <span className={styles.infoValue}>{tournament.location}</span>
+                  <span className={styles.infoValue}>
+                    {tournament.location}
+                  </span>
                 </div>
               )}
 
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Start Date</span>
-                <span className={styles.infoValue}>{formatDate(tournament.start_date)}</span>
+                <span className={styles.infoValue}>
+                  {formatDate(tournament.start_date)}
+                </span>
               </div>
 
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>End Date</span>
-                <span className={styles.infoValue}>{formatDate(tournament.end_date)}</span>
+                <span className={styles.infoValue}>
+                  {formatDate(tournament.end_date)}
+                </span>
               </div>
 
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Time Control</span>
-                <span className={styles.infoValue}>{tournament.time_control}</span>
+                <span className={styles.infoValue}>
+                  {tournament.time_control}
+                </span>
               </div>
 
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Max Players</span>
-                <span className={styles.infoValue}>{tournament.max_players}</span>
+                <span className={styles.infoValue}>
+                  {tournament.max_players}
+                </span>
               </div>
 
               <div className={styles.infoItem}>
                 <span className={styles.infoLabel}>Organizer</span>
-                <span className={styles.infoValue}>{tournament.organizer_name}</span>
+                <span className={styles.infoValue}>
+                  {tournament.organizer_name}
+                </span>
               </div>
             </div>
           </div>
@@ -224,29 +244,31 @@ const TournamentDetails = () => {
           )}
         </section>
 
-        {role === 'organizer' && (
+        {role === "organizer" && (
           <section className={styles.section}>
             <h3 className={styles.sectionTitle}>Organizer Actions</h3>
             <div className={styles.actionButtons}>
-              <button 
+              <button
                 className={styles.btnSecondary}
                 onClick={handleCloseRegistration}
-                disabled={tournament.status !== 'registration_open'}
+                disabled={tournament.status !== "registration_open"}
               >
                 Close Registration
               </button>
-              
-              {tournament.status !== 'ongoing' && tournament.status !== 'completed' && (
-                <button 
-                  className={styles.btnPrimary}
-                  onClick={handleStartRound1}
-                >
-                  Start Tournament
-                </button>
-              )}
-              
-              {(tournament.status === 'ongoing' || tournament.status === 'completed') && (
-                <button 
+
+              {tournament.status !== "ongoing" &&
+                tournament.status !== "completed" && (
+                  <button
+                    className={styles.btnPrimary}
+                    onClick={handleStartRound1}
+                  >
+                    Start Tournament
+                  </button>
+                )}
+
+              {(tournament.status === "ongoing" ||
+                tournament.status === "completed") && (
+                <button
                   className={styles.btnPrimary}
                   onClick={handleViewMatches}
                 >
@@ -258,7 +280,7 @@ const TournamentDetails = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default TournamentDetails
+export default TournamentDetails;

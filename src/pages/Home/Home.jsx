@@ -6,6 +6,7 @@ import UpdateCreate from "../../components/Tournament/UpdateCreate";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 const Home = () => {
   const navigate = useNavigate();
   const [isLogged, setIsLogged] = useState(false);
