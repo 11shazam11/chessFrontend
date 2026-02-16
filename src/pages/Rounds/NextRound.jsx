@@ -221,9 +221,16 @@ const NextRound = () => {
   };
 
   // Navigate to next round page
-  const handleStartNextRound = () => {
-    navigate(`/tournaments/${tournamentId}/rounds/next?case=nextRound`);
-  };
+const handleStartNextRound = async () => {
+  
+  // if you're already on nextRound page, navigation won't retrigger anything
+  // so just create the round directly
+  await createNextRound();
+
+  // optional: after creating, switch to view mode so next click is clean
+  navigate(`/tournaments/${tournamentId}/rounds/next?case=viewMatches`, { replace: true });
+};
+
 
   // ---------- init ----------
   useEffect(() => {
