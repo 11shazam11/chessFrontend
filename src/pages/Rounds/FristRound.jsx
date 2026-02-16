@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import styles from "./rounds.module.css";
 
 // This component handles ONLY the first round creation of a tournament
-const FirstRound = ({ tournamentId }) => {
+const FirstRound = () => {
+  const {tournamentId} = useParams();
   const navigate = useNavigate();
   const [currentRound, setCurrentRound] = useState(null);
   const [matches, setMatches] = useState([]);
@@ -13,6 +14,7 @@ const FirstRound = ({ tournamentId }) => {
 
   // Fetch individual player details
   const fetchPlayerDetails = async (playerId) => {
+    console.log("Fetching player details for ID:", playerId);
     try {
       const res = await fetch(`${serverUrl}/api/users/${playerId}`, {
         method: "GET",
@@ -20,7 +22,10 @@ const FirstRound = ({ tournamentId }) => {
       });
       if (res.ok) {
         const data = await res.json();
+        console.log("Player fetched:", data);
         return data;
+      } else {
+        console.error("Failed to fetch player:", playerId);
       }
     } catch (error) {
       console.error("Error fetching player details:", error);
@@ -30,6 +35,7 @@ const FirstRound = ({ tournamentId }) => {
 
   // Load round data and fetch all player details
   const loadRoundData = async (roundData, matchesData) => {
+    console.log("loadRoundData called with:", { roundData, matchesData });
     setCurrentRound(roundData);
     setMatches(matchesData);
 
@@ -40,11 +46,15 @@ const FirstRound = ({ tournamentId }) => {
       if (match.black_player_id) playerIds.add(match.black_player_id);
     });
 
+    console.log("Unique player IDs to fetch:", Array.from(playerIds));
+
     // Fetch all player details in parallel
     const playerDetailsPromises = Array.from(playerIds).map((id) =>
-      fetchPlayerDetails(id)
+      fetchPlayerDetails(id),
     );
     const playerDetailsArray = await Promise.all(playerDetailsPromises);
+
+    console.log("Player details fetched:", playerDetailsArray);
 
     // Map player details by ID
     const playersMap = {};
@@ -54,6 +64,7 @@ const FirstRound = ({ tournamentId }) => {
       }
     });
 
+    console.log("Players map created:", playersMap);
     setMatchPlayers(playersMap);
     setLoading(false);
   };
@@ -61,19 +72,27 @@ const FirstRound = ({ tournamentId }) => {
   // Create or fetch the first round (round number 1)
   const createFirstRound = async () => {
     setLoading(true);
+    console.log(
+      "Creating/fetching first round for tournament ID:",
+      tournamentId,
+    );
     try {
       const res = await fetch(
         `${serverUrl}/api/rounds/${tournamentId}/rounds/1`,
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
+        console.log("First round created/fetched:", data);
+        console.log("Round data:", data.round);
+        console.log("Matches data:", data.matches);
         await loadRoundData(data.round, data.matches);
       } else {
         const errorData = await res.json();
+        console.error("Error response:", errorData);
         alert(errorData.message || "Failed to create first round");
         setLoading(false);
       }
@@ -125,7 +144,7 @@ const FirstRound = ({ tournamentId }) => {
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
       if (res.ok) {
         const data = await res.json();
@@ -145,7 +164,7 @@ const FirstRound = ({ tournamentId }) => {
 
   // Navigate to next round page
   const handleStartNextRound = () => {
-    navigate(`/tournaments/${tournamentId}/next-round?case=nextRound`);
+    navigate(`/tournaments/${tournamentId}/rounds/next?case=nextRound`);
   };
 
   // Initialize component - check auth and create first round
@@ -153,9 +172,10 @@ const FirstRound = ({ tournamentId }) => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       alert("Please login to view rounds");
-      navigate("/login");
+      navigate("/");
       return;
     }
+    console.log("tournamentId:", tournamentId);
 
     if (tournamentId) {
       createFirstRound();
@@ -236,8 +256,7 @@ const FirstRound = ({ tournamentId }) => {
                               {whitePlayer.name}
                             </div>
                             <div className={styles.playerRating}>
-                              Rating:{" "}
-                              <span>{whitePlayer.rating || "N/A"}</span>
+                              Rating: <span>{whitePlayer.rating || "N/A"}</span>
                             </div>
                             {match.result === "pending" && (
                               <button
@@ -246,7 +265,7 @@ const FirstRound = ({ tournamentId }) => {
                                   declareWinner(
                                     match.id,
                                     match.white_player_id,
-                                    "white_win"
+                                    "white_win",
                                   )
                                 }
                               >
@@ -276,8 +295,7 @@ const FirstRound = ({ tournamentId }) => {
                               {blackPlayer.name}
                             </div>
                             <div className={styles.playerRating}>
-                              Rating:{" "}
-                              <span>{blackPlayer.rating || "N/A"}</span>
+                              Rating: <span>{blackPlayer.rating || "N/A"}</span>
                             </div>
                             {match.result === "pending" && (
                               <button
@@ -286,7 +304,7 @@ const FirstRound = ({ tournamentId }) => {
                                   declareWinner(
                                     match.id,
                                     match.black_player_id,
-                                    "black_win"
+                                    "black_win",
                                   )
                                 }
                               >
@@ -322,9 +340,11 @@ const FirstRound = ({ tournamentId }) => {
 
         {/* Action buttons */}
         <section className={styles.section}>
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+          <div
+            style={{ display: "flex", gap: "1rem", justifyContent: "center" }}
+          >
             <button
-              className={styles.btnSecondary}
+              className={styles.btnPrimary}
               onClick={declareRandomWinners}
             >
               Declare Random Winners

@@ -44,13 +44,14 @@ const Home = () => {
   function checkLogin() {
     const user = JSON.parse(localStorage.getItem("user"));
     if (user) {
-      setRole(user.role);
-      setUserEmail(user.email);
+      setRole(user.user.role);
+      setUserEmail(user.user.email);
     }
 
     return !!user;
   }
   useEffect(() => {
+    
     checkLogin();
     const loggedIn = checkLogin();
     if (loggedIn) {
@@ -59,7 +60,7 @@ const Home = () => {
     } else {
       navigate("/");
     }
-  }, []);
+  }, [userEmail,isLogged]);
 
   return (
     <>

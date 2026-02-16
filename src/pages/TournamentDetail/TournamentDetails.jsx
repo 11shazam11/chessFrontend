@@ -1,10 +1,11 @@
 // TournamentDetails.jsx
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import styles from "./tournamentdetails.module.css";
 
 const TournamentDetails = () => {
   const { tournamentId } = useParams();
+  const {setIsLogged} = useOutletContext();
   const navigate = useNavigate();
   const [tournament, setTournament] = React.useState(null);
   const [players, setPlayers] = React.useState([]);
@@ -86,7 +87,8 @@ const TournamentDetails = () => {
     }
   };
 
-  const handleStartRound1 = async () => {
+  const handleStartRound1 = () => {
+    console.log("Starting first round for tournament ID:", tournamentId);
     navigate(`/tournaments/${tournamentId}/rounds/first`);
   };
 
@@ -98,10 +100,11 @@ const TournamentDetails = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       alert("Please login to view tournament details");
-      navigate("/login");
+      setIsLogged(false);
+      navigate("/");
       return;
     }
-    setRole(user.role);
+    setRole(user.user.role);
 
     if (tournamentId) {
       fetchTournamentDetails();

@@ -1,135 +1,161 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import styles from "./rounds.module.css";
 
-// This component handles viewing current round and creating next rounds
-const NextRound = ({ tournamentId, case: actionCase }) => {
+const NextRound = () => {
   const navigate = useNavigate();
+  const { tournamentId } = useParams();
+  const [searchParams] = useSearchParams();
+  const actionCase = searchParams.get("case"); // viewMatches | nextRound
+
   const [currentRound, setCurrentRound] = useState(null);
+  const [roundStatus, setRoundStatus] = useState("");
   const [matches, setMatches] = useState([]);
   const [matchPlayers, setMatchPlayers] = useState({});
   const [loading, setLoading] = useState(true);
+
   const serverUrl = import.meta.env.VITE_SERVER_URL;
 
-  // Fetch individual player details
+  // ---------- players ----------
   const fetchPlayerDetails = async (playerId) => {
+    if (!playerId) return null;
+    console.log("Fetching player details for ID:", playerId);
     try {
       const res = await fetch(`${serverUrl}/api/users/${playerId}`, {
-        method: "GET",
         credentials: "include",
       });
       if (res.ok) {
         const data = await res.json();
-        console.log("Player details fetched:", data);
+        console.log("Player fetched:", data);
         return data;
       }
-    } catch (error) {
-      console.error("Error fetching player details:", error);
+    } catch (e) {
+      console.error("player fetch error", e);
     }
     return null;
   };
 
-  // Get the latest round of the tournament
-  const getLatestRound = async () => {
-    try {
-      const res = await fetch(
-        `${serverUrl}/api/rounds/${tournamentId}/current`,
-        {
-          method: "GET",
-          credentials: "include",
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Latest round fetched:", data);
-        return data;
-      } else {
-        const errorData = await res.json();
-        console.error("Error fetching latest round:", errorData);
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching latest round:", error);
-      return null;
-    }
-  };
-
-  // Get all matches for a specific round
-  const getRoundMatches = async (roundId) => {
-    try {
-      const res = await fetch(`${serverUrl}/api/rounds/${roundId}/matches`, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Round matches fetched:", data);
-        return data;
-      } else {
-        const errorData = await res.json();
-        console.error("Error fetching round matches:", errorData);
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching round matches:", error);
-      return null;
-    }
-  };
-
-  // Load round data and fetch all player details
-  const loadRoundData = async (roundData, matchesData) => {
-    setCurrentRound(roundData);
-    setMatches(matchesData);
-
-    // Collect all unique player IDs
-    const playerIds = new Set();
-    matchesData.forEach((match) => {
-      if (match.white_player_id) playerIds.add(match.white_player_id);
-      if (match.black_player_id) playerIds.add(match.black_player_id);
+  // ---------- normalize + load ----------
+  const loadRoundData = useCallback(async (roundRaw, matchesRaw, statusRaw) => {
+    console.log("loadRoundData called with:", { roundRaw, matchesRaw, statusRaw });
+    
+    setCurrentRound({
+      id: roundRaw.id,
+      round_number: roundRaw.round_number ?? roundRaw.roundNumber,
     });
 
-    // Fetch all player details in parallel
-    const playerDetailsPromises = Array.from(playerIds).map((id) =>
-      fetchPlayerDetails(id)
-    );
-    const playerDetailsArray = await Promise.all(playerDetailsPromises);
+    if (statusRaw) setRoundStatus(statusRaw);
+    else if (roundRaw.status) setRoundStatus(roundRaw.status);
 
-    // Map player details by ID
-    const playersMap = {};
-    playerDetailsArray.forEach((player) => {
-      if (player) {
-        playersMap[player.id] = player;
-      }
+    setMatches(matchesRaw);
+
+    const ids = new Set();
+    matchesRaw.forEach(m => {
+      if (m.white_player_id) ids.add(m.white_player_id);
+      if (m.black_player_id) ids.add(m.black_player_id);
     });
 
-    console.log("Players map created:", playersMap);
-    setMatchPlayers(playersMap);
+    console.log("Unique player IDs to fetch:", [...ids]);
+
+    const players = await Promise.all([...ids].map(fetchPlayerDetails));
+    const map = {};
+    players.forEach(p => { if (p) map[p.id] = p; });
+    
+    console.log("Players map created:", map);
+    setMatchPlayers(map);
+
     setLoading(false);
+  }, []);
+
+  // ---------- API ----------
+  const getLatestRound = async () => {
+    const res = await fetch(`${serverUrl}/api/rounds/${tournamentId}/current`, {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.error("Failed to get latest round");
+      return null;
+    }
+    const data = await res.json();
+    console.log("Latest round fetched:", data);
+    return data;
   };
 
-  // Load current round and its matches for viewing
+  const getRoundMatches = async (roundId) => {
+    const res = await fetch(`${serverUrl}/api/rounds/${roundId}/matches`, {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      console.error("Failed to get round matches");
+      return null;
+    }
+    const data = await res.json();
+    console.log("Round matches fetched:", data);
+    return data;
+  };
+
   const loadCurrentRoundForViewing = async () => {
     setLoading(true);
     console.log("Loading current round for viewing...");
-    
-    // Get latest round
-    const roundData = await getLatestRound();
-    if (!roundData) {
+    const r = await getLatestRound();
+    if (!r) {
       alert("No active round found");
-      setLoading(false);
-      return;
+      return setLoading(false);
     }
-
-    // Get matches for that round using round.id
-    const matchesData = await getRoundMatches(roundData.id);
-    if (!matchesData) {
+    const m = await getRoundMatches(r.id);
+    if (!m) {
       alert("Failed to load matches");
+      return setLoading(false);
+    }
+    loadRoundData(r, m);
+  };
+
+  const createNextRound = async () => {
+    setLoading(true);
+    console.log("Creating next round...");
+
+    const cur = await getLatestRound();
+    if (!cur) {
+      alert("No current round found");
+      return setLoading(false);
+    }
+
+    console.log("Creating next round with:", {
+      tournamentId,
+      currentRoundId: cur.id,
+      currentRoundNumber: cur.round_number,
+    });
+
+    const res = await fetch(
+      `${serverUrl}/api/rounds/${tournamentId}/rounds/${cur.id}/next`,
+      { method: "POST", credentials: "include" }
+    );
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error("Error creating next round:", errorData);
       setLoading(false);
+      alert(errorData.message || "Failed to create next round");
       return;
     }
 
-    // Load the data
-    await loadRoundData(roundData, matchesData);
+    const data = await res.json();
+    console.log("Next round response:", data);
+
+    // Check if tournament is completed
+    if (data.status === "COMPLETED") {
+      console.log("Tournament completed!", data);
+      
+      // Fetch winner details
+      const winner = await fetchPlayerDetails(data.winner?.playerId);
+      alert(`Tournament completed! Winner is ${winner?.name || "Unknown"}`);
+      navigate(`/tournaments/${tournamentId}`);
+      return;
+    }
+
+    // Load the new round data
+    await loadRoundData(data.round, data.matches, data.status);
+    alert("Next round created successfully!");
   };
 
   // Declare winner for a match
@@ -149,7 +175,7 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
       if (res.ok) {
         const data = await res.json();
         console.log("Winner declared successfully:", data);
-        alert(`Winner declared successfully!`);
+        alert("Winner declared successfully!");
         // Reload current round to get updated data
         loadCurrentRoundForViewing();
       } else {
@@ -196,94 +222,24 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
 
   // Navigate to next round page
   const handleStartNextRound = () => {
-    navigate(`/tournaments/${tournamentId}/next-round?case=nextRound`);
+    navigate(`/tournaments/${tournamentId}/rounds/next?case=nextRound`);
   };
 
-  // Create and load the next round
-  const createNextRound = async () => {
-    setLoading(true);
-    console.log("Creating next round...");
-
-    // First get the current round to find its ID
-    const currentRoundData = await getLatestRound();
-    if (!currentRoundData) {
-      alert("No current round found");
-      setLoading(false);
-      return;
-    }
-
-    console.log("Creating next round with:", {
-      tournamentId,
-      currentRoundId: currentRoundData.id,
-      currentRoundNumber: currentRoundData.round_number,
-    });
-
-    try {
-      // Use currentRound.id (not round_number) as per your route
-      const res = await fetch(
-        `${serverUrl}/api/rounds/${tournamentId}/rounds/${currentRoundData.id}/next`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        console.log("Next round created response:", data);
-
-        if (data.status === "COMPLETED") {
-          const winner = await fetchPlayerDetails(data.winner_player_id);
-          alert(`Tournament completed! Winner is ${winner?.name || "Unknown"}`);
-          navigate(`/tournaments/${tournamentId}`);
-        } else {
-          alert("Next round created successfully!");
-          // The response should contain the new round and matches
-          if (data.round && data.matches) {
-            await loadRoundData(data.round, data.matches);
-          } else {
-            // Fallback: load the new current round
-            loadCurrentRoundForViewing();
-          }
-        }
-      } else {
-        const errorData = await res.json();
-        console.error("Error creating next round:", errorData);
-        alert(errorData.message || "Failed to create next round");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Error creating next round:", error);
-      alert("Error creating next round");
-      setLoading(false);
-    }
-  };
-
-  // Initialize component based on case
+  // ---------- init ----------
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       alert("Please login to view rounds");
-      navigate("/login");
-      return;
+      return navigate("/");
     }
 
-    if (tournamentId) {
-      console.log("Component initialized with:", { tournamentId, actionCase });
-      
-      // CASE 1: Just view the current round matches
-      if (actionCase === "viewMatches") {
-        console.log("Loading current round for viewing...");
-        loadCurrentRoundForViewing();
-      } 
-      // CASE 2: Create and display the next round
-      else if (actionCase === "nextRound") {
-        console.log("Creating next round...");
-        createNextRound();
-      }
-    }
+    console.log("Component initialized with:", { tournamentId, actionCase });
+
+    if (actionCase === "nextRound") createNextRound();
+    else loadCurrentRoundForViewing();
   }, [tournamentId, actionCase]);
 
-  // Loading state
+  // ---------- UI ----------
   if (loading) {
     return (
       <div className={styles.container}>
@@ -292,7 +248,6 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
     );
   }
 
-  // Error state - no round found
   if (!currentRound) {
     return (
       <div className={styles.container}>
@@ -316,11 +271,13 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
         >
           ← Back to Tournament
         </button>
-        <h1>Round {currentRound?.round_number}</h1>
+        
+        <h1>Round {currentRound.round_number}</h1>
+        
         <span
-          className={`${styles.badge} ${styles["badge-" + currentRound?.status]}`}
+          className={`${styles.badge} ${styles["badge-" + (roundStatus || "ongoing")]}`}
         >
-          {currentRound?.status.toUpperCase()}
+          {(roundStatus || "ongoing").toUpperCase()}
         </span>
       </div>
 
@@ -374,8 +331,7 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
                                 Declare Winner
                               </button>
                             )}
-                            {match.winner_player_id ===
-                              match.white_player_id && (
+                            {match.winner_player_id === match.white_player_id && (
                               <div className={styles.winnerLabel}>
                                 🏆 Winner
                               </div>
@@ -414,13 +370,14 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
                                 Declare Winner
                               </button>
                             )}
-                            {match.winner_player_id ===
-                              match.black_player_id && (
+                            {match.winner_player_id === match.black_player_id && (
                               <div className={styles.winnerLabel}>
                                 🏆 Winner
                               </div>
                             )}
                           </>
+                        ) : match.is_bye ? (
+                          <div className={styles.playerName}>BYE</div>
                         ) : (
                           <div className={styles.playerName}>Loading...</div>
                         )}
@@ -441,11 +398,11 @@ const NextRound = ({ tournamentId, case: actionCase }) => {
           )}
         </section>
 
-        {/* Action buttons based on case */}
+        {/* Action buttons */}
         <section className={styles.section}>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
             <button
-              className={styles.btnSecondary}
+              className={styles.btnPrimary}
               onClick={declareRandomWinners}
             >
               Declare Random Winners

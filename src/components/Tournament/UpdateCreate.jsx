@@ -1,10 +1,12 @@
 import React from 'react'
-import styles from './updatecreate.module.css'
+import styles from './updatecreate.module.css';
+import { useNavigate } from 'react-router-dom';
 
 const UpdateCreate = (props) => {
   const { mode, onClose, tournamentData, onSubmit } = props;
-  console.log('Received tournamentData:', tournamentData);
   // mode: 'create' or 'update'
+
+  const navigate = useNavigate();
   
   // Helper function to format date for input[type="date"]
   const formatDateForInput = (dateString) => {
@@ -63,7 +65,7 @@ const UpdateCreate = (props) => {
 
       if (res.ok) {
         const data = await res.json();
-        console.log('Tournament saved:', data);
+        navigate("/tournaments");
         if (onSubmit) onSubmit(data);
         onClose();
       } else {

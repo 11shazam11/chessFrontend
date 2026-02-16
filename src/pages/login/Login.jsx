@@ -32,18 +32,14 @@ const Login = () => {
         console.log("Login successful:", userData);
         //remove old user data from local storage
         localStorage.removeItem("user");
-        localStorage.setItem(
-          "user",
-          JSON.stringify(userData.validateUser.user),
-        );
         setRole(userData.validateUser.user.role);
         //set limit to 15 minutes for the user data in local storage
-        setTimeout(
-          () => {
-            localStorage.removeItem("user");
-          },
-          15 * 60 * 1000,
-        );
+        const userWithExpiry = {
+          user: userData.validateUser.user,
+          expiry: new Date().getTime() + 15 * 60 * 1000, // 15 minutes
+        };
+        localStorage.setItem("user", JSON.stringify(userWithExpiry));
+        
         navigate("/tournaments");
         setIsLogged(true);
       } else {
