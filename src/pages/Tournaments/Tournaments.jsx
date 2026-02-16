@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import styles from "./tournaments.module.css";
 
 const Tournaments = () => {
-  const {setLogged} = useOutletContext();
+  const {setIsLogged} = useOutletContext();
   const navigate = useNavigate();
   const { role, handleUpdateClick } = useOutletContext();
   const [tournaments, setTournaments] = React.useState([]);
@@ -17,12 +17,12 @@ const Tournaments = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       alert("Please login to view tournaments");
-      setLogged(false);
+      setIsLogged(false);
       navigate("/");
     }else if(user.expiry < new Date().getTime()){
       alert("Session expired. Please login again.");
       localStorage.removeItem("user");
-      setLogged(false);
+      setIsLogged(false);
       navigate("/");
     }
   }, []);

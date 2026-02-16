@@ -87,6 +87,42 @@ const TournamentDetails = () => {
     }
   };
 
+  //add all players to tournament round 1
+  const addPlayersToRound1 = async () => {
+    const serverUrl = import.meta.env.VITE_SERVER_URL;
+    try {
+      const res = await fetch(`${serverUrl}/api/users/all`,{
+        method: "GET",
+        credentials: "include",
+      });
+      const allplayersId = await res.json();
+      
+      const playerIds = allplayersId.map(player => player.id);
+      console.log("Player IDs to add to round 1:", playerIds);
+      const data = {
+        playerIds: playerIds
+      }
+
+      const res2 = await fetch(`${serverUrl}/api/tournaments/${tournamentId}/register-players`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (res2.ok) {
+        alert("Players added to tournament successfully");
+      } else {
+        const errorData = await res2.json();
+        alert(errorData.message || "Failed to add players to tournament");
+      }
+      fetchPlayers();
+    } catch (error) {
+      console.error("Error adding players to tournament:", error);
+      alert("Error adding players to tournament");
+    }
+  };
   const handleStartRound1 = () => {
     console.log("Starting first round for tournament ID:", tournamentId);
     navigate(`/tournaments/${tournamentId}/rounds/first`);
@@ -268,6 +304,17 @@ const TournamentDetails = () => {
                     Start Tournament
                   </button>
                 )}
+
+                 {tournament.status !== "ongoing" &&
+                tournament.status !== "completed" && (
+                  <button
+                    className={styles.btnPrimary}
+                    onClick={addPlayersToRound1}
+                  >
+                    Add all players to round 1
+                  </button>
+                )}
+
 
               {(tournament.status === "ongoing" ||
                 tournament.status === "completed") && (
