@@ -149,7 +149,9 @@ const NextRound = () => {
       // Fetch winner details
       const winner = await fetchPlayerDetails(data.winner?.playerId);
       alert(`Tournament completed! Winner is ${winner?.name || "Unknown"}`);
+      setLoading(false);
       navigate(`/tournaments/${tournamentId}`);
+
       return;
     }
 
@@ -222,13 +224,12 @@ const NextRound = () => {
 
   // Navigate to next round page
 const handleStartNextRound = async () => {
-  
-  // if you're already on nextRound page, navigation won't retrigger anything
-  // so just create the round directly
-  await createNextRound();
-
-  // optional: after creating, switch to view mode so next click is clean
-  navigate(`/tournaments/${tournamentId}/rounds/next?case=viewMatches`, { replace: true });
+  if(matches.length <1){
+    navigate(`/tournaments/${tournamentId}/rounds/next?case=nextRound`);
+  }else{
+     await createNextRound();
+     navigate(`/tournaments/${tournamentId}/rounds/next?case=viewMatches`, { replace: true });
+  }
 };
 
 
