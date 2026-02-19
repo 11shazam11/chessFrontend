@@ -160,7 +160,7 @@ const TournamentDetails = () => {
     return (
       <div className={styles.container}>
         <div className={styles.error}>Tournament not found</div>
-        <button className={styles.btnSecondary} onClick={() => navigate(-1)}>
+        <button className={styles.btnSecondary} onClick={() => navigate("/tournaments")}>
           Go Back
         </button>
       </div>
@@ -170,7 +170,7 @@ const TournamentDetails = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>
+        <button className={styles.backBtn} onClick={() => navigate("/tournaments")}>
           ← Back
         </button>
         <h1>{tournament.name}</h1>

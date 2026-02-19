@@ -13,7 +13,7 @@ const Navbar = (props) => {
         <img src={logo} alt="logo" />
       </div>
       {isLogged ? (
-        <div className={styles.menuItems}>
+        <div className={styles.menuItems}> 
           {role === "organizer" ? (
             <h3 onClick={handleCreateClick}>Create Tournaments</h3>
           ) : (

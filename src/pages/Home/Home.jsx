@@ -83,7 +83,7 @@ const Home = () => {
               onSubmit={handleSubmit}
             />
           )}
-          <Outlet context={{ setIsLogged, role, userEmail,handleUpdateClick,setRole }} />
+          <Outlet context={{ setIsLogged, role, userEmail,handleUpdateClick,setRole,showModal }} />
         </div>
       </div>
     </>

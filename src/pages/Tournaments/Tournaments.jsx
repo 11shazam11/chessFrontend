@@ -4,7 +4,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import styles from "./tournaments.module.css";
 
 const Tournaments = () => {
-  const {setIsLogged} = useOutletContext();
+  const {setIsLogged,showModal} = useOutletContext();
   const navigate = useNavigate();
   const { role, handleUpdateClick } = useOutletContext();
   const [tournaments, setTournaments] = React.useState([]);
@@ -92,9 +92,14 @@ const Tournaments = () => {
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchTournaments();
   }, []);
+  useEffect(()=>{
+    if(showModal === false){
+      fetchTournaments();
+    }
+  },[showModal])
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
